@@ -7,7 +7,7 @@
 ---
 
 ## 👥 Identificação dos Integrantes
-* **Nome:** Lucas Toshio Nascimento da Silva |**Matrícula:** 20240001500
+* **Nome:** Lucas Toshio Nascimento da Silva | **Matrícula:** 20240001500
 * **Nome:** Amanda Gabrielly Duarte Silva | **Matrícula:** 20240045757 
 
 ---
