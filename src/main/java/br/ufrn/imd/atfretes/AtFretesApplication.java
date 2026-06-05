@@ -1,13 +1,13 @@
 package br.ufrn.imd.atfretes;
 
-import org.springframework.boot.SpringApplication;
+import javafx.application.Application;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class AtFretesApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AtFretesApplication.class, args);
+        Application.launch(JavaFxApplication.class, args);
     }
 
 }
