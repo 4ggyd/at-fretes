@@ -2,39 +2,81 @@
 
 > **Disciplina:** Linguagem de Programação 2  
 > **Professor:** João Anisio Marinho da Nobrega  
-> **Caminho Escolhido:** Caminho A – API Robusta 
+> **Unidade Curricular:** Instituto Metrópole Digital (IMD / UFRN)  
+> **Caminho Escolhido:** Caminho A – API Robusta com Interface Gráfica Integrada
 
 ---
 
 ## 👥 Identificação dos Integrantes
 * **Nome:** Lucas Toshio Nascimento da Silva | **Matrícula:** 20240001500
-* **Nome:** Amanda Gabrielly Duarte Silva | **Matrícula:** 20240045757 
+* **Nome:** Amanda Gabrielly Duarte Silva | **Matrícula:** 20240045757
 
 ---
 
 ## 🎯 1. O Problema
-No cenário atual do e-commerce, pequenos lojistas enfrentam um gargalo crítico: a precificação manual de fretes. A dependência de tabelas estáticas e conferências humanas não apenas consome um tempo operacional valioso, mas gera erros de cotação que impactam diretamente a lucratividade e a confiança do consumidor. O **A&T Fretes** surge para eliminar essa ineficiência, oferecendo uma solução de backend que automatiza a lógica logística, garantindo cálculos instantâneos e precisos.
+No cenário atual do e-commerce, pequenos lojistas enfrentam um gargalo crítico: a precificação manual de fretes. A dependência de tabelas estáticas e conferências humanas consome tempo operacional e gera erros que impactam a lucratividade. O **A&T Fretes** automatiza a lógica logística, garantindo cálculos instantâneos combinados à renderização visual de rotas rodoviárias.
 
 ## 👥 2. O Público-Alvo
-A API é direcionada a desenvolvedores de ecossistemas de vendas e pequenos empreendedores que buscam um motor de cálculo centralizado. Ao fornecer uma interface programável, permitimos que esses profissionais integrem inteligência logística diretamente em seus checkouts, abstraindo a complexidade dos algoritmos de transporte.
+Desenvolvedores de e-commerce, operadores logísticos e pequenos empreendedores que necessitam de um motor de cálculo centralizado com interface visual intuitiva.
 
 ## 🚀 3. O Escopo (User Stories)
-Para atender às necessidades do negócio, o sistema será pautado nas seguintes funcionalidades:
+* **Cálculo Dinâmico:** Submeter peso e valor para obter o cálculo de frete com taxas fracionadas.
+* **Estimativa e Rota:** Informar CEP de destino para visualizar prazo de entrega e trajeto em mapa.
+* **Gestão de Parâmetros:** Configuração de taxa base, adicionais por distância/quilo e seguro *Ad Valorem*.
 
-* **Cálculo Dinâmico por Peso:** Como um sistema de vendas, eu quero submeter o peso de um pacote para receber o valor do frete calculado automaticamente.
-* **Estimativa de Prazo:** Como um usuário final, eu quero informar meu CEP de destino para visualizar o prazo estimado de entrega.
-* **Gestão de Parâmetros Logísticos:** Como administrador do sistema, eu quero atualizar o valor da taxa por quilômetro para ajustar os preços conforme variações externas, como o aumento do combustível.
+## 🛠️ 4. Decisão Técnica e Arquitetura
+O sistema utiliza uma arquitetura MVC integrada entre Spring Boot (Back-end) e JavaFX (Front-end).
 
-## 🛠️ 4. Decisão do Projeto e Desafio Técnico
-A escolha pelo desenvolvimento de uma API Robusta justifica-se pela complexidade inerente ao processamento de variáveis dinâmicas em tempo real. Diferente de uma aplicação de cadastro simples (CRUD), o **A&T Fretes** exige a implementação de uma lógica de serviço que correlaciona peso e distância para gerar resultados precisos. A utilização de uma arquitetura dividida em camadas de **Controle, Serviço e Repositório** demonstra o domínio de padrões de projeto essenciais para o ecossistema Spring.
 
-## 💻 5. Stack de Tecnologia Proposta
-O projeto será construído com tecnologias modernas que garantem performance e manutenibilidade:
 
-* **Linguagem:** Java 17+ (utilizando Records para imutabilidade de dados).
-* **Framework:** Spring Boot 3+.
-* **Documentação:** Springdoc (Swagger UI) para visualização e testes dos endpoints.
-* **Arquitetura:** Divisão em Camadas de Controle, Serviço e Repositório.
+[Image of MVC architectural pattern]
 
-## 💾 6. Persistência de Dados
-Para esta etapa do desenvolvimento, os dados serão gerenciados por meio de um **Repositório em Memória**. Utilizaremos estruturas de dados nativas do Java, como `HashMap` para indexação rápida de rotas e `ArrayList` para o gerenciamento de registros enquanto a aplicação estiver em execução, garantindo alta performance sem a necessidade inicial de um banco de dados SQL.
+
+* **Back-end:** Spring Boot 3+ (Services/Records).
+* **Front-end:** JavaFX 21+ com `WebView` para renderização de mapas via Leaflet/CartoDB.
+* **Persistência:** Repositório em memória (HashMap/ArrayList) para alta performance de tempo de execução.
+
+---
+
+## 🎨 5. Estrutura de Integração
++--------------------------------------------------------+
+|                  CAMADA VISUAL (FRONT)                 |
+|   JavaFX Desktop (Scene Graph)  <->  WebView Component |
++--------------------------------------------------------+
+|
+Ponte Nativa (JavaBridge JS)
+|
++--------------------------------------------------------+
+|                 LOGICA DE SERVIÇO (BACK)               |
+|   Spring Boot Framework Core <-> Services/Records      |
++--------------------------------------------------------+
+|
+HTTP Requests (ViaCEP / OSRM)
+
+## 🚀 6. Instruções para Rodar a Aplicação
+
+### Pré-requisitos
+* Java JDK 17+ instalado (`JAVA_HOME` configurado).
+* Maven Wrapper (`mvnw`) disponível na raiz do projeto.
+
+### Passo a Passo
+
+1. **Limpeza do Workspace:**
+   Abra o terminal na raiz do projeto e execute:
+   `./mvnw clean` (ou `mvnw clean` no Windows).
+
+2. **Execução:**
+   Execute a diretiva abaixo para compilar e iniciar o sistema integrado:
+   `./mvnw spring-boot:run` (ou `mvnw spring-boot:run` no Windows).
+
+3. **Homologação e Teste:**
+   A janela **"Sistema de Fretes IMD"** abrirá automaticamente.
+   * **Teste sugerido:** Origem `59147395`, Destino `04475380`, Peso `2`, Valor `25`.
+   * Clique em **"Calcular Rota e Frete"**. O sistema processará os dados e renderizará o trajeto interestadual no mapa.
+
+---
+
+## 📡 7. Integrações de Rede
+* **ViaCEP:** Validação de endereços.
+* **Nominatim (OpenStreetMap):** Geocodificação (conversão de endereços em coordenadas).
+* **OSRM:** Motor de roteamento viário para cálculo de distância e traçado de rotas.

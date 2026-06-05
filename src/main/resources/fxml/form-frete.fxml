@@ -22,7 +22,7 @@
 
     <VBox spacing="15.0" prefWidth="400.0" alignment="TOP_CENTER" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);">
         
-        <Label text="Cálculo de Fretes Pro" textFill="#2c3e50">
+        <Label text="Cálculo de Fretes AT" textFill="#2c3e50">
             <font>
                 <Font name="System Bold" size="20.0"/>
             </font>
