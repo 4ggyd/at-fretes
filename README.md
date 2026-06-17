@@ -70,7 +70,7 @@ HTTP Requests (ViaCEP / OSRM)
    `./mvnw spring-boot:run` (ou `mvnw spring-boot:run` no Windows).
 
 3. **Homologação e Teste:**
-   A janela **"Sistema de Fretes IMD"** abrirá automaticamente.
+   A janela **"Sistema de Fretes AT"** abrirá automaticamente.
    * **Teste sugerido:** Origem `59147395`, Destino `04475380`, Peso `2`, Valor `25`.
    * Clique em **"Calcular Rota e Frete"**. O sistema processará os dados e renderizará o trajeto interestadual no mapa.
 
