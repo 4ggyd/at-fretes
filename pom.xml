@@ -6,43 +6,31 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.2</version>
+        <version>3.2.5</version>
         <relativePath/>
     </parent>
-    
+
     <groupId>br.ufrn.imd</groupId>
-    <artifactId>at-fretes</artifactId>
+    <artifactId>atfretes</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>at-fretes</name>
-    <description>Projeto de calculo de fretes com interface grafica e API</description>
-    
+    <name>atfretes</name>
+    <description>Sistema de Gerenciamento e Calculo de Fretes Pro</description>
+
     <properties>
         <java.version>17</java.version>
-        <javafx.version>21</javafx.version>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        
+
         <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>${javafx.version}</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-web</artifactId>
-            <version>${javafx.version}</version>
-        </dependency>
-        
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -55,9 +43,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>br.ufrn.imd.atfretes.Main</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>

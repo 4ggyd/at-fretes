@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sistema de Fretes IMD - Painel Web Pro</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        html, body {
+            background-color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .main-wrapper {
+            height: 100vh;
+            padding: 15px;
+        }
+        .content-row {
+            height: calc(100vh - 30px);
+        }
+        .scrollable-panel {
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .map-container-box {
+            height: 100%;
+            position: relative;
+        }
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-color: #cbd5e1;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .btn-success {
+            background-color: #22c55e;
+            border-color: #22c55e;
+            font-weight: 600;
+        }
+        .btn-success:hover {
+            background-color: #16a34a;
+            border-color: #16a34a;
+        }
+        .custom-marker {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .scrollable-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollable-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollable-panel::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dados-logistica" th:if="${calculado}" th:data-mapa="${dadosMapaJson}" style="display: none;"></div>
+
+    <div class="container-fluid main-wrapper">
+        <div class="row g-3 content-row">
+            
+            <div class="col-lg-4 d-flex flex-column h-100">
+                <div class="scrollable-panel">
+                    <div class="card p-3 mb-3">
+                        <h4 class="text-center fw-bold mb-3" style="color: #1e3a8a;">Cálculo de Fretes AT</h4>
+                        
+                        <div th:if="${erro}" class="alert alert-danger py-2 mb-2" th:text="${erro}"></div>
+
+                        <form th:action="@{/calcular}" method="post">
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold text-secondary mb-1">CEP Origem:</label>
+                                <input type="text" name="cepOrigem" class="form-control form-control-sm" th:value="${cepOrigem}" placeholder="Ex: 59147395" required />
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold text-secondary mb-1">CEP Destino:</label>
+                                <input type="text" name="cepDestino" class="form-control form-control-sm" th:value="${cepDestino}" placeholder="Ex: 59500000" required />
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold text-secondary mb-1">Peso (kg):</label>
+                                <input type="text" name="peso" class="form-control form-control-sm" th:value="${peso}" placeholder="Ex: 2" required />
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold text-secondary mb-1">Valor Declarado:</label>
+                                <input type="text" name="valorDeclarado" class="form-control form-control-sm" th:value="${valorDeclarado != null ? valorDeclarado : '25'}" placeholder="Ex: 25" required />
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success btn-sm w-100 py-2 mt-2">Calcular Rota e Frete</button>
+                        </form>
+                    </div>
+
+                    <div class="card p-3" th:if="${calculado}">
+                        <h6 class="fw-bold mb-2" style="color: #1e3a8a;">Detalhamento do Frete Real:</h6>
+                        <p class="small mb-1"><b>Origem:</b> <span th:text="${resultado.nomeOrigem}"></span></p>
+                        <p class="small mb-2"><b>Destino:</b> <span th:text="${resultado.nomeDestino}"></span></p>
+                        
+                        <p class="small mb-1">Distância Estimada: <span th:text="${resultado.distancia}"></span> km</p>
+                        <p class="small mb-3">Peso Considerado: <span th:text="${resultado.peso}"></span> kg</p>
+                        
+                        <div class="border-top pt-2">
+                            <p class="text-secondary small mb-1 d-flex justify-content-between"><span>- Taxa Base:</span> <span>R$ <span th:text="${resultado.taxaBase}"></span></span></p>
+                            <p class="text-secondary small mb-1 d-flex justify-content-between"><span>- Adicional Rota/Peso:</span> <span>R$ <span th:text="${resultado.taxaAdicional}"></span></span></p>
+                            <p class="text-secondary small mb-2 d-flex justify-content-between"><span>- Seguro (0.5%):</span> <span>R$ <span th:text="${resultado.taxaSeguro}"></span></span></p>
+                            <h5 class="fw-bold d-flex justify-content-between border-top pt-2" style="color: #1e3a8a; font-size: 1.1rem;">
+                                <span>Total:</span> <span>R$ <span th:text="${resultado.total}"></span></span>
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 h-100">
+                <div class="card p-2 map-container-box">
+                    <div id="map"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        var map;
+
+        function initMap() {
+            map = L.map('map', {
+                zoomControl: true,
+                worldCopyJump: false
+            }).setView([-14.2350, -51.9253], 4);
+
+            var apiKey = '8dd68f7e-6d30-45e8-9ed2-78addd8ef5ca';
+
+            L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}.png?api_key=' + apiKey, {
+                maxZoom: 20,
+                noWrap: true,
+                attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>'
+            }).addTo(map);
+
+            var elementoDados = document.getElementById('dados-logistica');
+            if (elementoDados) {
+                var rawJson = elementoDados.getAttribute('data-mapa');
+                if (rawJson) {
+                    try {
+                        var res = JSON.parse(rawJson);
+                        desenharTrajetoRodoviario(res.latOrigem, res.lngOrigem, res.latDestino, res.lngDestino, res.nomeOrigem, res.nomeDestino);
+                    } catch (e) {
+                        console.error("Erro na leitura do payload geo-logístico: ", e);
+                    }
+                }
+            }
+        }
+
+        function criarIconeColorido(cor) {
+            return L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="background-color: ' + cor + '; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+        }
+
+        function desenharTrajetoRodoviario(latA, lngA, latB, lngB, labelA, labelB) {
+            var corOrigemERota = '#0052cc'; 
+            var corChegada = '#ff2a2a';     
+
+            var marcadorA = L.marker([latA, lngA], { icon: criarIconeColorido(corOrigemERota) })
+                .addTo(map).bindPopup('<b>Origem:</b> ' + labelA).openPopup();
+
+            var marcadorB = L.marker([latB, lngB], { icon: criarIconeColorido(corChegada) })
+                .addTo(map).bindPopup('<b>Destino:</b> ' + labelB);
+
+            // API publica OSRM estruturada via HTTPS dinâmico para obter a malha rodoviária real do mapa
+            var urlOsrm = 'https://router.project-osrm.org/route/v1/driving/' + lngA + ',' + latA + ';' + lngB + ',' + latB + '?overview=full&geometries=geojson';
+
+            fetch(urlOsrm)
+                .then(function(response) {
+                    if (!response.ok) { throw new Error('Falha no serviço de rotas'); }
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.routes && data.routes.length > 0) {
+                        // Converte as coordenadas long/lat recebidas do GeoJSON para lat/long aceitas pelo Leaflet
+                        var coordenadasEstrada = data.routes[0].geometry.coordinates.map(function(coord) {
+                            return [coord[1], coord[0]];
+                        });
+
+                        var camadaRota = L.polyline(coordenadasEstrada, {
+                            color: corOrigemERota,
+                            weight: 6,
+                            opacity: 0.9,
+                            lineJoin: 'round'
+                        }).addTo(map);
+
+                        var limites = L.latLngBounds([marcadorA.getLatLng(), marcadorB.getLatLng()]);
+                        map.fitBounds(limites.pad(0.3), { animate: false });
+                    } else {
+                        desenharLinhaDiretaContingencia(marcadorA, marcadorB, corOrigemERota);
+                    }
+                })
+                .catch(function(err) {
+                    console.warn("Utilizando rota geodésica de contingência: ", err.message);
+                    desenharLinhaDiretaContingencia(marcadorA, marcadorB, corOrigemERota);
+                });
+        }
+
+        function desenharLinhaDiretaContingencia(marcadorA, marcadorB, cor) {
+            var coordenadasLinha = [marcadorA.getLatLng(), marcadorB.getLatLng()];
+            L.polyline(coordenadasLinha, {
+                color: cor,
+                weight: 6,
+                opacity: 0.9,
+                lineJoin: 'round'
+            }).addTo(map);
+            
+            var limites = L.latLngBounds(coordenadasLinha);
+            map.fitBounds(limites.pad(0.3), { animate: false });
+        }
+
+        window.onload = initMap;
+    </script>
+</body>
+</html>

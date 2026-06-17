@@ -1,6 +1,6 @@
-# 🚚 A&T Fretes: Inteligência Logística
+# 🚚 A&T Fretes: Inteligência Logística Web
 
-> **Disciplina:** Linguagem de Programação 2  
+> **Disciplina:** Linguagem de Programação II  
 > **Professor:** João Anisio Marinho da Nobrega  
 > **Unidade Curricular:** Instituto Metrópole Digital (IMD / UFRN)  
 > **Caminho Escolhido:** Caminho A – API Robusta com Interface Gráfica Integrada
@@ -14,69 +14,73 @@
 ---
 
 ## 🎯 1. O Problema
-No cenário atual do e-commerce, pequenos lojistas enfrentam um gargalo crítico: a precificação manual de fretes. A dependência de tabelas estáticas e conferências humanas consome tempo operacional e gera erros que impactam a lucratividade. O **A&T Fretes** automatiza a lógica logística, garantindo cálculos instantâneos combinados à renderização visual de rotas rodoviárias.
+No cenário atual do e-commerce, pequenos lojistas enfrentam um gargalo crítico: a precificação manual de fretes. A dependência de tabelas estáticas e conferências humanas consome tempo operacional e gera erros que impactam a lucratividade. O **A&T Fretes** automatiza a lógica logística, garantindo cálculos dinâmicos combinados à renderização visual de rotas rodoviárias reais.
 
 ## 👥 2. O Público-Alvo
-Desenvolvedores de e-commerce, operadores logísticos e pequenos empreendedores que necessitam de um motor de cálculo centralizado com interface visual intuitiva.
+Desenvolvedores de e-commerce, operadores logísticos e pequenos empreendedores que necessitam de um motor de cálculo centralizado com interface visual intuitiva e em tempo real.
 
 ## 🚀 3. O Escopo (User Stories)
-* **Cálculo Dinâmico:** Submeter peso e valor para obter o cálculo de frete com taxas fracionadas.
-* **Estimativa e Rota:** Informar CEP de destino para visualizar prazo de entrega e trajeto em mapa.
-* **Gestão de Parâmetros:** Configuração de taxa base, adicionais por distância/quilo e seguro *Ad Valorem*.
+* **Cálculo Dinâmico:** Submeter peso e valor declarado para obter o cálculo de frete com taxas fracionadas de forma imediata.
+* **Estimativa e Rota:** Informar os CEPs de origem e destino para visualizar a distância e o trajeto exato sobre a malha rodoviária.
+* **Gestão de Parâmetros:** Processamento de taxas básicas, adicionais por distância/quilo e precificação de seguro ad valorem gerenciados de forma centralizada pelo servidor.
 
 ## 🛠️ 4. Decisão Técnica e Arquitetura
-O sistema utiliza uma arquitetura MVC integrada entre Spring Boot (Back-end) e JavaFX (Front-end).
+O sistema utiliza uma arquitetura MVC Web integrada nativamente pelo Spring Boot, eliminando dependências estáticas de execução no cliente.
 
-
-
-[Image of MVC architectural pattern]
-
-
-* **Back-end:** Spring Boot 3+ (Services/Records).
-* **Front-end:** JavaFX 21+ com `WebView` para renderização de mapas via Leaflet/CartoDB.
-* **Persistência:** Repositório em memória (HashMap/ArrayList) para alta performance de tempo de execução.
+* **Back-end:** Spring Boot 3.2.2 (Java 17, RestTemplate, ObjectMapper e DTOs de transferência estruturados).
+* **Front-end:** HTML5 dinâmico com Thymeleaf, Bootstrap 5.3.2 para layout responsivo justo e Leaflet 1.9.4.
+* **Provedor de Mapas:** Stadia Maps (Alidade Smooth) acoplado via token de API.
 
 ---
 
 ## 🎨 5. Estrutura de Integração
 +--------------------------------------------------------+
-|                  CAMADA VISUAL (FRONT)                 |
-|   JavaFX Desktop (Scene Graph)  <->  WebView Component |
+|                 CAMADA VISUAL (FRONT)                  |
+|  Thymeleaf Engine <-> Bootstrap 5 <-> Leaflet Map      |
 +--------------------------------------------------------+
 |
-Ponte Nativa (JavaBridge JS)
-|
+| JSON Seguro (HTML5 data-attributes)
+v
 +--------------------------------------------------------+
-|                 LOGICA DE SERVIÇO (BACK)               |
-|   Spring Boot Framework Core <-> Services/Records      |
+|                LOGICA DE SERVIÇO (BACK)                |
+|  Spring Boot MVC Controller <-> ResultadoFrete DTO    |
 +--------------------------------------------------------+
 |
-HTTP Requests (ViaCEP / OSRM)
+| HTTP Requests (ViaCEP / Nominatim)
+v
++--------------------------------------------------------+
+|              MALHA DE ROTEAMENTO (OSRM)                |
+|  Chamadas Assíncronas de Rota Rodoviária Curva a Curva |
++--------------------------------------------------------+
+
+---
 
 ## 🚀 6. Instruções para Rodar a Aplicação
 
 ### Pré-requisitos
-* Java JDK 17+ instalado (`JAVA_HOME` configurado).
+* Java JDK 17+ instalado.
 * Maven Wrapper (`mvnw`) disponível na raiz do projeto.
 
 ### Passo a Passo
 
-1. **Limpeza do Workspace:**
-   Abra o terminal na raiz do projeto e execute:
-   `./mvnw clean` (ou `mvnw clean` no Windows).
+1. **Desimpedimento da Porta de Rede:**
+   No terminal do PowerShell, encerre processos que possam reter a porta de execução padrão do servidor:
+   `Stop-Process -Id (Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue).OwningProcess -Force -ErrorAction SilentlyContinue`
 
-2. **Execução:**
-   Execute a diretiva abaixo para compilar e iniciar o sistema integrado:
-   `./mvnw spring-boot:run` (ou `mvnw spring-boot:run` no Windows).
+2. **Compilação e Inicialização:**
+   Execute a diretiva abaixo para limpar os caches do projeto, compilar os fontes e iniciar o servidor embutido Tomcat:
+   `./mvnw clean spring-boot:run`
 
 3. **Homologação e Teste:**
-   A janela **"Sistema de Fretes AT"** abrirá automaticamente.
-   * **Teste sugerido:** Origem `59147395`, Destino `04475380`, Peso `2`, Valor `25`.
-   * Clique em **"Calcular Rota e Frete"**. O sistema processará os dados e renderizará o trajeto interestadual no mapa.
+   Abra uma guia em modo anônimo no navegador e acesse:
+   `http://localhost:8080/`
+   
+   * **Teste sugerido:** Origem `59147395`, Destino `59141610`, Peso `2`, Valor `25`.
+   * Clique em **Calcular Rota e Frete**. O sistema processará os dados no back-end e renderizará o trajeto rodoviário real curva a curva no mapa, sem gerar barras de rolagem.
 
 ---
 
 ## 📡 7. Integrações de Rede
-* **ViaCEP:** Validação de endereços.
-* **Nominatim (OpenStreetMap):** Geocodificação (conversão de endereços em coordenadas).
-* **OSRM:** Motor de roteamento viário para cálculo de distância e traçado de rotas.
+* **ViaCEP:** Validação estrutural de endereços postais baseada nos CEPs de entrada.
+* **Nominatim (OpenStreetMap):** Geocodificação assíncrona de endereços em coordenadas cartográficas.
+* **OSRM:** Motor externo de roteamento para cálculo de distâncias rodoviárias reais e envio da malha de caminhos.
